@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts v4.3.2 (token/ERC20/ERC20.sol)
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.10;
 
 interface IERC20 {
     
@@ -17,12 +16,18 @@ interface IERC20 {
     
     function allowance(address owner, address spender) external view returns (uint256);
     
+    function stakingStats(address user) external view returns(uint256 stake, uint256 apy, uint256 time, uint256 reward);
+    
     function transfer(address recipient, uint256 amount) external returns (bool);
 
     function approve(address spender, uint256 amount) external returns (bool);
 
     function transferFrom(address sender, address recipient, uint256 amount) external returns (bool);
-
+    
+    function stake(uint256 amount) external;
+    
+    function unstake(uint256 amount) external;
+    
     event Transfer(address indexed from, address indexed to, uint256 value);
 
     event Approval(address indexed owner, address indexed spender, uint256 value);
@@ -85,7 +90,7 @@ contract ERC20 is IERC20 {
         return _allowances[owner][spender];
     }
     
-    function stakingStats(address user) external view returns(uint256 stake, uint256 apy, uint256 time, uint256 reward) {
+    function stakingStats(address user) external view override returns(uint256 stake, uint256 apy, uint256 time, uint256 reward) {
         stake = _stake[msg.sender];
         apy = _apy[msg.sender];
         time = _time[msg.sender];
@@ -143,7 +148,7 @@ contract ERC20 is IERC20 {
         return true;
     }
     
-    function stake(uint256 amount) external {
+    function stake(uint256 amount) external override {
         claimRewards();
         
         _balances[msg.sender] -= amount;
@@ -153,7 +158,7 @@ contract ERC20 is IERC20 {
         
     }
     
-    function unstake(uint256 amount) external {
+    function unstake(uint256 amount) external override {
         claimRewards();
         
         _stake[msg.sender] -= amount;
